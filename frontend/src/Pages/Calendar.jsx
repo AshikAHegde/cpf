@@ -1,310 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import timeGridPlugin from "@fullcalendar/timegrid";
 
-const events = [
-  // Week 1 - Jan 4-10
-  {
-    title: "🔶 Weekly 482",
-    start: "2026-01-04",
-    color: "#dc2626",
-    extendedProps: {
-      platform: "LeetCode",
-      time: "8:00-9:30am",
-      type: "weekly",
-      date: "JAN 04",
-    },
-  },
-  {
-    title: "📘 Edu Round",
-    start: "2026-01-05",
-    color: "#3b82f6",
-    extendedProps: {
-      platform: "Codeforces",
-      time: "8:00-10:00pm",
-      type: "educational",
-      date: "JAN 05",
-    },
-  },
-  {
-    title: "⭐ Grand Contest",
-    start: "2026-01-04",
-    color: "#8b5cf6",
-    extendedProps: {
-      platform: "CodeChef",
-      time: "9:00pm",
-      type: "grand",
-      date: "JAN 04",
-    },
-  },
-  {
-    title: "🟢 Starters 21",
-    start: "2026-01-07",
-    color: "#10b981",
-    extendedProps: {
-      platform: "CodeChef",
-      time: "8:00pm",
-      type: "starters",
-      date: "JAN 07",
-    },
-  },
-  {
-    title: "⚪ Beginner Contest",
-    start: "2026-01-08",
-    color: "#6b7280",
-    extendedProps: {
-      platform: "AtCoder",
-      time: "5:00pm",
-      type: "beginner",
-      date: "JAN 08",
-    },
-  },
-  {
-    title: "🔷 Biweekly 173",
-    start: "2026-01-03",
-    color: "#f59e0b",
-    extendedProps: {
-      platform: "LeetCode",
-      time: "8:30-10:00am",
-      type: "biweekly",
-      date: "JAN 03",
-    },
-  },
+const formatTime = (date) =>
+  new Date(date).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
-  // Week 2 - Jan 11-17
-  {
-    title: "🔶 Weekly 483",
-    start: "2026-01-11",
-    color: "#dc2626",
-    extendedProps: {
-      platform: "LeetCode",
-      time: "8:00-9:30am",
-      type: "weekly",
-      date: "JAN 11",
-    },
-  },
-  {
-    title: "📘 Div 3 Round",
-    start: "2026-01-12",
-    color: "#3b82f6",
-    extendedProps: {
-      platform: "Codeforces",
-      time: "7:35pm",
-      type: "division",
-      date: "JAN 12",
-    },
-  },
-  {
-    title: "🟢 Starters 2",
-    start: "2026-01-14",
-    color: "#10b981",
-    extendedProps: {
-      platform: "CodeChef",
-      time: "8:00pm",
-      type: "starters",
-      date: "JAN 14",
-    },
-  },
-  {
-    title: "⚪ Beginner Contest",
-    start: "2026-01-17",
-    color: "#6b7280",
-    extendedProps: {
-      platform: "AtCoder",
-      time: "5:00pm",
-      type: "beginner",
-      date: "JAN 17",
-    },
-  },
-  {
-    title: "🟣 Regular Contest",
-    start: "2026-01-11",
-    color: "#8b5cf6",
-    extendedProps: {
-      platform: "AtCoder",
-      time: "8:00pm",
-      type: "regular",
-      date: "JAN 11",
-    },
-  },
-  {
-    title: "🔷 Biweekly 174",
-    start: "2026-01-17",
-    color: "#f59e0b",
-    extendedProps: {
-      platform: "LeetCode",
-      time: "8:30-10:00am",
-      type: "biweekly",
-      date: "JAN 17",
-    },
-  },
-
-  // Week 3 - Jan 18-24
-  {
-    title: "🔶 Weekly 485",
-    start: "2026-01-18",
-    color: "#dc2626",
-    extendedProps: {
-      platform: "LeetCode",
-      time: "8:00-9:30am",
-      type: "weekly",
-      date: "JAN 18",
-    },
-  },
-  {
-    title: "📘 Div 4 Round",
-    start: "2026-01-19",
-    color: "#3b82f6",
-    extendedProps: {
-      platform: "Codeforces",
-      time: "8:35pm",
-      type: "division",
-      date: "JAN 19",
-    },
-  },
-  {
-    title: "🟢 Starters 222",
-    start: "2026-01-21",
-    color: "#10b981",
-    extendedProps: {
-      platform: "CodeChef",
-      time: "8:00pm",
-      type: "starters",
-      date: "JAN 21",
-    },
-  },
-  {
-    title: "📘 Div 2 Round",
-    start: "2026-01-23",
-    color: "#3b82f6",
-    extendedProps: {
-      platform: "Codeforces",
-      time: "8:05pm",
-      type: "division",
-      date: "JAN 23",
-    },
-  },
-  {
-    title: "⚪ Beginner Contest",
-    start: "2026-01-24",
-    color: "#6b7280",
-    extendedProps: {
-      platform: "AtCoder",
-      time: "5:00pm",
-      type: "beginner",
-      date: "JAN 24",
-    },
-  },
-
-  // Week 4 - Jan 25-31
-  {
-    title: "🟢 Starters 223",
-    start: "2026-01-28",
-    color: "#10b981",
-    extendedProps: {
-      platform: "CodeChef",
-      time: "8:00pm",
-      type: "starters",
-      date: "JAN 28",
-    },
-  },
-  {
-    title: "📘 Div 1 Round",
-    start: "2026-01-29",
-    color: "#3b82f6",
-    extendedProps: {
-      platform: "Codeforces",
-      time: "8:35pm",
-      type: "division",
-      date: "JAN 29",
-    },
-  },
-  {
-    title: "📘 Div 2 Round",
-    start: "2026-01-29",
-    color: "#3b82f6",
-    extendedProps: {
-      platform: "Codeforces",
-      time: "5:05pm",
-      type: "division",
-      date: "JAN 29",
-    },
-  },
-  {
-    title: "⚪ Beginner Contest",
-    start: "2026-01-31",
-    color: "#6b7280",
-    extendedProps: {
-      platform: "AtCoder",
-      time: "5:00pm",
-      type: "beginner",
-      date: "JAN 31",
-    },
-  },
-
-  // January upcoming contests
-  {
-    title: "🔶 Weekly 480",
-    start: "2026-01-18",
-    color: "#dc2626",
-    extendedProps: {
-      platform: "LeetCode",
-      time: "1:30-3:00pm",
-      type: "weekly",
-      date: "JAN 18",
-    },
-  },
-  {
-    title: "🎯 Div 4 Round 1074",
-    start: "2026-01-19",
-    color: "#3b82f6",
-    extendedProps: {
-      platform: "Codeforces",
-      time: "2:30-4:00pm",
-      type: "division",
-      date: "JAN 19",
-    },
-  },
-  {
-    title: "🟢 Starters 222",
-    start: "2026-01-21",
-    color: "#10b981",
-    extendedProps: {
-      platform: "CodeChef",
-      time: "3:30-5:30pm",
-      type: "starters",
-      date: "JAN 21",
-    },
-  },
-  {
-    title: "🎯 Div 2 Round 1070",
-    start: "2026-01-23",
-    color: "#3b82f6",
-    extendedProps: {
-      platform: "Codeforces",
-      time: "5:12-7:00pm",
-      type: "division",
-      date: "JAN 23",
-    },
-  },
-  {
-    title: "⭐ Beginner Contest 442",
-    start: "2026-01-24",
-    color: "#6b7280",
-    extendedProps: {
-      platform: "AtCoder",
-      time: "8:00-10:00pm",
-      type: "beginner",
-      date: "JAN 24",
-    },
-  },
-];
+const formatDate = (date) =>
+  new Date(date)
+    .toLocaleDateString([], { month: "short", day: "2-digit" })
+    .toUpperCase();
 
 export default function CalendarPage() {
+  const [events, setEvents] = useState([]);
 
-  // Get upcoming contests (sorted by date)
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_API_URL}/api/contests`)
+      .then((res) => setEvents(res.data))
+      .catch((err) => console.error("Error fetching contests:", err));
+  }, []);
+
+
   const upcomingContests = [...events]
     .filter((event) => new Date(event.start) >= new Date())
     .sort((a, b) => new Date(a.start) - new Date(b.start))
@@ -313,7 +30,6 @@ export default function CalendarPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-gray-100 p-4 md:p-8 font-sans transition-colors duration-300">
       <div className="max-w-[1600px] mx-auto space-y-8">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/5 pb-6">
           <div className="space-y-2">
             <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 tracking-tight">
@@ -328,13 +44,22 @@ export default function CalendarPage() {
         </div>
 
         <div className="flex flex-col xl:flex-row gap-8">
-          {/* Main Calendar */}
           <div className="flex-1 bg-[#13131f]/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/5 overflow-hidden ring-1 ring-white/5">
             <div className="p-6">
               <FullCalendar
                 plugins={[dayGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
-                events={events}
+
+                events={events.map((event) => ({
+                  ...event,
+                  backgroundColor: "transparent",
+                  borderColor: "transparent",
+                  textColor: "inherit",
+                  extendedProps: {
+                    ...event.extendedProps,
+                    contestColor: event.color,
+                  },
+                }))}
                 height="auto"
                 headerToolbar={{
                   left: "prev,next today",
@@ -344,7 +69,7 @@ export default function CalendarPage() {
                 eventContent={renderEventContent}
                 eventClick={(info) => {
                   alert(
-                    `Contest: ${info.event.title}\nPlatform: ${info.event.extendedProps.platform}\nTime: ${info.event.extendedProps.time}`,
+                    `Contest: ${info.event.title}\nPlatform: ${info.event.extendedProps.platform}\nTime: ${formatTime(info.event.start)}`
                   );
                 }}
                 dayCellClassNames="hover:bg-white/5 transition-colors duration-200 cursor-pointer"
@@ -356,9 +81,7 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          {/* Sidebar */}
           <aside className="w-full xl:w-[400px] space-y-6">
-            {/* Upcoming Contests */}
             <div className="bg-[#13131f]/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/5 p-6 ring-1 ring-white/5">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3 border-b border-white/5 pb-4">
                 <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 text-lg">
@@ -378,10 +101,10 @@ export default function CalendarPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-[10px] font-bold tracking-wider text-blue-300 bg-blue-500/10 px-2.5 py-1 rounded-full uppercase border border-blue-500/20">
-                            {event.extendedProps.platform}
+                            {event.platform}
                           </span>
                           <span className="text-[10px] font-semibold text-gray-500">
-                            {event.extendedProps.date}
+                            {formatDate(event.start)}
                           </span>
                         </div>
                         <h3 className="font-bold text-white text-base leading-tight group-hover:text-blue-400 transition-colors">
@@ -395,21 +118,19 @@ export default function CalendarPage() {
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {event.extendedProps.time}
+                        {formatTime(event.start)}
                       </span>
                       <span
                         className="px-2.5 py-1 rounded-md text-white shadow-sm"
                         style={{ backgroundColor: event.color }}
                       >
-                        {event.extendedProps.type}
+                        {event.type}
                       </span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-
-
           </aside>
         </div>
       </div>
@@ -427,7 +148,7 @@ export default function CalendarPage() {
           border-color: var(--fc-border-color);
         }
 
-        /* Header Styling */
+
         .fc .fc-toolbar-title {
           font-weight: 700;
           font-size: 1.5rem;
@@ -492,7 +213,8 @@ export default function CalendarPage() {
         }
 
         .fc-event {
-          border: none;
+          border: none !important;
+          background-color: transparent !important;
           padding: 2px 4px;
           margin-top: 2px;
           border-radius: 6px;
@@ -510,9 +232,20 @@ export default function CalendarPage() {
 
 function renderEventContent(eventInfo) {
   return (
-    <div className="flex items-center gap-1.5 px-1 py-0.5 overflow-hidden">
-      <div className="w-1.5 h-1.5 rounded-full bg-white/80 shadow-sm shrink-0" />
-      <span className="truncate leading-tight opacity-90">{eventInfo.event.title}</span>
+    <div
+      className="flex items-center gap-1.5 px-2 py-1 overflow-hidden w-full"
+      style={{
+        backgroundColor: eventInfo.event.extendedProps.contestColor + "20",
+        borderLeft: `3px solid ${eventInfo.event.extendedProps.contestColor}`,
+        borderRadius: "4px",
+      }}
+    >
+      <span
+        className="truncate leading-tight font-medium"
+        style={{ color: eventInfo.event.extendedProps.contestColor }}
+      >
+        {eventInfo.event.title}
+      </span>
     </div>
   );
 }
