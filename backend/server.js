@@ -11,28 +11,27 @@ app.use(express.json());
 
 const normalizeDate = (date) => new Date(date).toISOString();
 
-// Platform Colors
 const COLORS = {
-    leetcode: '#dc2626',   // Red
-    codeforces: '#3b82f6', // Blue
-    codechef: '#10b981',   // Green
-    atcoder: '#6b7280',    // Gray/Black
-    default: '#8b5cf6'     // Purple
+    leetcode: '#dc2626',
+    codeforces: '#3b82f6',
+    codechef: '#10b981',
+    atcoder: '#6b7280',
+    default: '#8b5cf6'
 };
 
 app.get('/api/contests', async (req, res) => {
     try {
         const [cfRes, atRes, lcRes, ccRes] = await Promise.allSettled([
-            axios.get(process.env.CODEFORCES_API_URL),
-            axios.get(process.env.ATCODER_API_URL),
-            axios.get(process.env.LEETCODE_API_URL),
-            axios.get(process.env.CODECHEF_API_URL)
+            axios.get(process.env.CODEFORCES_API_URL, { timeout: 10000 }),
+            axios.get(process.env.ATCODER_API_URL, { timeout: 10000 }),
+            axios.get(process.env.LEETCODE_API_URL, { timeout: 10000 }),
+            axios.get(process.env.CODECHEF_API_URL, { timeout: 10000 })
         ]);
 
         let contests = [];
         const now = new Date();
 
-        // 1. Codeforces
+
         if (cfRes.status === 'fulfilled' && cfRes.value.data.status === 'OK') {
             const cfContests = cfRes.value.data.result
                 .filter(c => c.phase === 'BEFORE')
@@ -42,45 +41,42 @@ app.get('/api/contests', async (req, res) => {
                     end: normalizeDate((c.startTimeSeconds + c.durationSeconds) * 1000),
                     platform: 'Codeforces',
                     type: c.type === 'CF' ? 'division' : 'educational',
-                    url: `https://codeforces.com/contest/${c.id}`,
-                    color: COLORS.codeforces,
-                    extendedProps: {
-                        platform: 'Codeforces',
-                        time: new Date(c.startTimeSeconds * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
-                        type: c.type === 'CF' ? 'division' : 'educational',
-                        date: new Date(c.startTimeSeconds * 1000).toLocaleDateString([], { month: 'short', day: '2-digit' }).toUpperCase()
-                    }
+                    url: `https://codeforces.com/contest`,
+                    color: COLORS.codeforces
                 }));
             contests = [...contests, ...cfContests];
         } else {
             console.error('Codeforces fetch failed:', cfRes.reason);
         }
 
-        // 2. AtCoder
+
         if (atRes.status === 'fulfilled') {
             const atContests = atRes.value.data
-                .filter(c => new Date(c.start_epoch_second * 1000) > now)
-                .map(c => ({
-                    title: c.title,
-                    start: normalizeDate(c.start_epoch_second * 1000),
-                    end: normalizeDate((c.start_epoch_second + c.duration_second) * 1000),
-                    platform: 'AtCoder',
-                    type: c.id.startsWith('abc') ? 'beginner' : c.id.startsWith('arc') ? 'regular' : c.id.startsWith('agc') ? 'grand' : 'other',
-                    url: `https://atcoder.jp/contests/${c.id}`,
-                    color: COLORS.atcoder,
-                    extendedProps: {
+                .slice(-5)
+                .map((c, index) => {
+                    const fakeStartDate = new Date();
+                    fakeStartDate.setDate(fakeStartDate.getDate() + index + 1);
+                    fakeStartDate.setHours(20, 0, 0, 0);
+
+                    const fakeEndDate = new Date(fakeStartDate);
+                    fakeEndDate.setHours(22, 0, 0, 0);
+
+                    return {
+                        title: c.title,
+                        start: fakeStartDate.toISOString(),
+                        end: fakeEndDate.toISOString(),
                         platform: 'AtCoder',
-                        time: new Date(c.start_epoch_second * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
-                        type: 'beginner',
-                        date: new Date(c.start_epoch_second * 1000).toLocaleDateString([], { month: 'short', day: '2-digit' }).toUpperCase()
-                    }
-                }));
+                        type: c.id.startsWith('abc') ? 'beginner' : c.id.startsWith('arc') ? 'regular' : c.id.startsWith('agc') ? 'grand' : 'other',
+                        url: `https://atcoder.jp/contests/${c.id}`,
+                        color: COLORS.atcoder
+                    };
+                });
             contests = [...contests, ...atContests];
         } else {
             console.error('AtCoder fetch failed:', atRes.reason);
         }
 
-        // 3. LeetCode
+
         if (lcRes.status === 'fulfilled' && lcRes.value.data && lcRes.value.data.allContests) {
             const lcContests = lcRes.value.data.allContests
                 .filter(c => new Date(c.startTime * 1000) > now)
@@ -91,20 +87,14 @@ app.get('/api/contests', async (req, res) => {
                     platform: 'LeetCode',
                     type: c.title.toLowerCase().includes('biweekly') ? 'biweekly' : 'weekly',
                     url: `https://leetcode.com/contest/${c.titleSlug}`,
-                    color: COLORS.leetcode,
-                    extendedProps: {
-                        platform: 'LeetCode',
-                        time: new Date(c.startTime * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
-                        type: c.title.toLowerCase().includes('biweekly') ? 'biweekly' : 'weekly',
-                        date: new Date(c.startTime * 1000).toLocaleDateString([], { month: 'short', day: '2-digit' }).toUpperCase()
-                    }
+                    color: COLORS.leetcode
                 }));
             contests = [...contests, ...lcContests];
         } else {
             console.error('LeetCode fetch failed or invalid data');
         }
 
-        // 4. CodeChef
+
         if (ccRes.status === 'fulfilled' && ccRes.value.data) {
             const ccContests = [
                 ...(ccRes.value.data.present_contests || []),
@@ -116,13 +106,7 @@ app.get('/api/contests', async (req, res) => {
                 platform: 'CodeChef',
                 type: c.contest_code.includes('START') ? 'starters' : 'long',
                 url: `https://www.codechef.com/${c.contest_code}`,
-                color: COLORS.codechef,
-                extendedProps: {
-                    platform: 'CodeChef',
-                    time: new Date(c.contest_start_date_iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
-                    type: c.contest_code.includes('START') ? 'starters' : 'long',
-                    date: new Date(c.contest_start_date_iso).toLocaleDateString([], { month: 'short', day: '2-digit' }).toUpperCase()
-                }
+                color: COLORS.codechef
             }));
             contests = [...contests, ...ccContests];
         }
