@@ -19,10 +19,10 @@ export default function Navbar() {
   return (
     <Disclosure
       as="nav"
-      className="relative bg-[#0a0a0f] border-b border-white/5 backdrop-blur-xl z-50"
+      className="sticky top-0 bg-[#0a0a0f]/80 border-b border-white/5 backdrop-blur-xl z-50 transform transition-all duration-300"
     >
-      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-        <div className="relative flex h-20 items-center justify-between">
+      <div className="mx-auto max-w-[1600px] px-4 md:px-8">
+        <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             {/* Mobile menu button*/}
             <DisclosureButton className="group relative inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-none ring-1 ring-white/5">
@@ -32,36 +32,40 @@ export default function Navbar() {
               <XMarkIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
             </DisclosureButton>
           </div>
-          <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="flex shrink-0 items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20">
-                <span className="text-white font-bold text-xl">C</span>
-              </div>
-              <span className="text-white font-bold text-xl tracking-tight hidden md:block">ContestPlatform</span>
+
+          {/* Left: Logo */}
+          <div className="flex shrink-0 items-center gap-3 flex-1 sm:items-stretch sm:justify-start">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20">
+              <span className="text-white font-bold text-lg">C</span>
             </div>
-            <div className="hidden sm:ml-10 sm:block my-auto">
-              <div className="flex space-x-1">
-                {navigation.map((item) => {
-                  const isCurrent = location.pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      aria-current={isCurrent ? 'page' : undefined}
-                      className={classNames(
-                        isCurrent 
-                          ? 'bg-white/10 text-white shadow-sm ring-1 ring-white/5' 
-                          : 'text-gray-400 hover:bg-white/5 hover:text-white',
-                        'rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-                      )}
-                    >
-                      {item.name}
-                    </Link>
-                  );
-                })}
-              </div>
+            <span className="text-white font-bold text-lg tracking-tight hidden md:block">ContestPlatform</span>
+          </div>
+
+          {/* Center: Navigation Links (Desktop) */}
+          <div className="hidden sm:block absolute left-1/2 transform -translate-x-1/2">
+            <div className="flex space-x-1 bg-white/5 p-1 rounded-xl border border-white/5 backdrop-blur-md">
+              {navigation.map((item) => {
+                const isCurrent = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    aria-current={isCurrent ? 'page' : undefined}
+                    className={classNames(
+                      isCurrent 
+                        ? 'bg-gray-800 text-white shadow-md' 
+                        : 'text-gray-400 hover:text-white hover:bg-white/5',
+                      'rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
             </div>
           </div>
+
+          {/* Right: Icons & Profile */}
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 gap-4">
             <button
               type="button"
