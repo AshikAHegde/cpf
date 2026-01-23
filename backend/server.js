@@ -41,7 +41,7 @@ app.get('/api/contests', async (req, res) => {
                     end: normalizeDate((c.startTimeSeconds + c.durationSeconds) * 1000),
                     platform: 'Codeforces',
                     type: c.type === 'CF' ? 'division' : 'educational',
-                    url: `https://codeforces.com/contest`,
+                    url: `https://codeforces.com/contests`,
                     color: COLORS.codeforces
                 }));
             contests = [...contests, ...cfContests];
