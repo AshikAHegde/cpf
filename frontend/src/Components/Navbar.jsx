@@ -52,8 +52,8 @@ export default function Navbar() {
                     to={item.href}
                     aria-current={isCurrent ? 'page' : undefined}
                     className={classNames(
-                      isCurrent 
-                        ? 'bg-gray-800 text-white shadow-md' 
+                      isCurrent
+                        ? 'bg-gray-800 text-white shadow-md'
                         : 'text-gray-400 hover:text-white hover:bg-white/5',
                       'rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
                     )}
@@ -94,10 +94,10 @@ export default function Navbar() {
                 className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-xl bg-[#13131f] py-2 shadow-2xl ring-1 ring-white/10 transition focus:outline-none data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
               >
                 <div className="px-4 py-3 border-b border-white/5 mb-2">
-                    <p className="text-sm text-white font-medium">Ashik Hegde</p>
-                    <p className="text-xs text-gray-400 truncate">ashik@example.com</p>
+                  <p className="text-sm text-white font-medium">Ashik Hegde</p>
+                  <p className="text-xs text-gray-400 truncate">ashik@example.com</p>
                 </div>
-                
+
                 <MenuItem>
                   <Link
                     to="#"
@@ -115,14 +115,14 @@ export default function Navbar() {
                   </Link>
                 </MenuItem>
                 <div className="border-t border-white/5 mt-2 pt-2">
-                    <MenuItem>
+                  <MenuItem>
                     <Link
-                        to="#"
-                        className="block px-4 py-2 text-sm text-red-400 data-focus:bg-red-500/10 transition-colors"
+                      to="#"
+                      className="block px-4 py-2 text-sm text-red-400 data-focus:bg-red-500/10 transition-colors"
                     >
-                        Sign out
+                      Sign out
                     </Link>
-                    </MenuItem>
+                  </MenuItem>
                 </div>
               </MenuItems>
             </Menu>
@@ -133,8 +133,8 @@ export default function Navbar() {
       <DisclosurePanel className="sm:hidden border-t border-white/5 bg-[#0a0a0f]">
         <div className="space-y-1 px-4 pt-3 pb-4">
           {navigation.map((item) => {
-             const isCurrent = location.pathname === item.href;
-             return (
+            const isCurrent = location.pathname === item.href;
+            return (
               <DisclosureButton
                 key={item.name}
                 as={Link}
