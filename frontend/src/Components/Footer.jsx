@@ -56,25 +56,25 @@ const navigation = {
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0a0a0f] border-t border-white/5 relative z-10" aria-labelledby="footer-heading">
+    <footer className="bg-[#0a0a0f]/60 backdrop-blur-xl border-t border-white/10 relative z-10" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">
         Footer
       </h2>
-      <div className="mx-auto max-w-[1600px] px-4 pb-8 pt-12 sm:px-6 lg:px-8 lg:pt-16">
+      <div className="mx-auto max-w-[1600px] px-4 pb-12 pt-16 sm:px-6 lg:px-8 lg:pt-24">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20">
                 <span className="text-white font-bold text-lg">C</span>
               </div>
-              <span className="text-white font-bold text-lg tracking-tight">ContestPlatform</span>
+              <span className="text-white font-bold text-xl tracking-tight">ContestPlatform</span>
             </div>
-            <p className="text-sm leading-6 text-gray-400">
+            <p className="text-base leading-6 text-gray-300">
               Transforming your competitive programming journey with advanced analytics and tracking.
             </p>
             <div className="flex space-x-6">
               {navigation.social.map((item) => (
-                <a key={item.name} href={item.href} className="text-gray-500 hover:text-blue-400 transition-colors duration-200">
+                <a key={item.name} href={item.href} className="text-gray-400 hover:text-blue-400 transition-colors duration-200">
                   <span className="sr-only">{item.name}</span>
                   <item.icon className="h-6 w-6" aria-hidden="true" />
                 </a>
@@ -84,11 +84,11 @@ export default function Footer() {
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold leading-6 text-white">Navigation</h3>
+                <h3 className="text-base font-bold leading-6 text-white uppercase tracking-wider">Navigation</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.main.map((item) => (
                     <li key={item.name}>
-                      <Link to={item.href} className="text-sm leading-6 text-gray-400 hover:text-white transition-colors duration-200">
+                      <Link to={item.href} className="text-base leading-6 text-gray-400 hover:text-white transition-colors duration-200 block py-1">
                         {item.name}
                       </Link>
                     </li>
@@ -96,11 +96,11 @@ export default function Footer() {
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-semibold leading-6 text-white">Platforms</h3>
+                <h3 className="text-base font-bold leading-6 text-white uppercase tracking-wider">Platforms</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.platforms.map((item) => (
                     <li key={item.name}>
-                      <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-sm leading-6 text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-3 group">
+                      <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-base leading-6 text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-3 group py-1">
                         <item.icon className="h-5 w-5 grayscale group-hover:grayscale-0 transition-all duration-200" aria-hidden="true" />
                         {item.name}
                       </a>
@@ -111,25 +111,25 @@ export default function Footer() {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold leading-6 text-white">Legal</h3>
+                <h3 className="text-base font-bold leading-6 text-white uppercase tracking-wider">Legal</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
-                    <Link to="#" className="text-sm leading-6 text-gray-400 hover:text-white transition-colors duration-200">
+                    <Link to="#" className="text-base leading-6 text-gray-400 hover:text-white transition-colors duration-200 block py-1">
                       Privacy Policy
                     </Link>
                   </li>
                   <li>
-                    <Link to="#" className="text-sm leading-6 text-gray-400 hover:text-white transition-colors duration-200">
+                    <Link to="#" className="text-base leading-6 text-gray-400 hover:text-white transition-colors duration-200 block py-1">
                       Terms of Service
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-semibold leading-6 text-white">Contact</h3>
+                <h3 className="text-base font-bold leading-6 text-white uppercase tracking-wider">Contact</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
-                    <a href="mailto:support@contestplatform.com" className="text-sm leading-6 text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                    <a href="mailto:support@contestplatform.com" className="text-base leading-6 text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-2 py-1">
                       <span>📧</span> Support
                     </a>
                   </li>
@@ -139,10 +139,10 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-12 border-t border-white/5 pt-8 sm:mt-16 sm:flex sm:items-center sm:justify-between">
-          <p className="text-xs leading-5 text-gray-500">
+          <p className="text-sm leading-5 text-gray-500">
             &copy; {new Date().getFullYear()} ContestPlatform. All rights reserved.
           </p>
-          <div className="mt-4 sm:mt-0 flex items-center gap-1 text-xs text-gray-500">
+          <div className="mt-4 sm:mt-0 flex items-center gap-1 text-sm text-gray-500">
             <span>Made with</span>
             <span className="text-red-500 animate-pulse">❤️</span>
             <span>by Ashik Hegde</span>
