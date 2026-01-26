@@ -2,7 +2,7 @@ import React from "react";
 import Navbar from "./Components/Navbar.jsx";
 import Footer from "./Components/Footer.jsx";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Dashboard from "./Pages/Dashboard.jsx";
+import Dashboard from "./Components/Dashboard.jsx";
 import Calendar from "./Pages/Calendar.jsx";
 import Team from "./Pages/Team.jsx";
 import Projects from "./Pages/Projects.jsx";
