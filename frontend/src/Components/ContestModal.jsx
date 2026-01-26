@@ -42,14 +42,7 @@ const ContestModal = ({ isOpen, onClose, contest, onAddToCalendar, Icon, positio
 
     const getDuration = (start, end) => {
         if (!end) return null;
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-
-        if (isNaN(endDate.getTime()) || endDate.getFullYear() === 1970) return null;
-
-        const diff = endDate - startDate;
-        if (diff < 0) return null; // Should not happen for valid contests
-
+        const diff = new Date(end) - new Date(start);
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         return `${hours}h ${minutes > 0 ? `${minutes}m` : ''}`;
@@ -92,13 +85,7 @@ const ContestModal = ({ isOpen, onClose, contest, onAddToCalendar, Icon, positio
     const getStatus = (start, end) => {
         const now = new Date();
         const startDate = new Date(start);
-        let endDate = end ? new Date(end) : null;
-
-        // Verify endDate is valid and after 1970 (to catch null -> 1970 issue if passed as 0/null/undefined)
-        if (!endDate || isNaN(endDate.getTime()) || endDate.getFullYear() === 1970) {
-            // Fallback: Assume 2 hour duration if end is missing/invalid
-            endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-        }
+        const endDate = new Date(end);
 
         if (now > endDate) return { text: 'COMPLETED', color: 'text-gray-400', bg: 'bg-gray-500/10 border-gray-500/20' };
         if (now >= startDate && now <= endDate) return { text: 'ONGOING', color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/20' };
@@ -169,11 +156,9 @@ const ContestModal = ({ isOpen, onClose, contest, onAddToCalendar, Icon, positio
                             <ClockIcon className="w-3.5 h-3.5 text-gray-400" />
                             {getDuration(contest?.start, contest?.end) || '--'}
                         </div>
-                        {contest?.end && (
-                            <div className="text-xs text-gray-500 mt-0.5">
-                                Ends: {formatTime(contest?.end)}
-                            </div>
-                        )}
+                        <div className="text-xs text-gray-500 mt-0.5">
+                            Ends: {formatTime(contest?.end)}
+                        </div>
                     </div>
                 </div>
 

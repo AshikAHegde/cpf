@@ -69,7 +69,7 @@ export default function Footer() {
               </div>
               <span className="text-white font-bold text-xl tracking-tight">ContestPlatform</span>
             </div>
-            <p className="text-base leading-6 text-gray-300">
+            <p className="text-lg leading-7 text-gray-300">
               Transforming your competitive programming journey with advanced analytics and tracking.
             </p>
             <div className="flex space-x-6">
@@ -84,11 +84,11 @@ export default function Footer() {
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-base font-bold leading-6 text-white uppercase tracking-wider">Navigation</h3>
+                <h3 className="text-sm font-bold leading-6 text-white uppercase tracking-wider">Navigation</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.main.map((item) => (
                     <li key={item.name}>
-                      <Link to={item.href} className="text-base leading-6 text-gray-400 hover:text-white transition-colors duration-200 block py-1">
+                      <Link to={item.href} className="text-sm leading-6 text-gray-400 hover:text-white transition-colors duration-200 block py-1">
                         {item.name}
                       </Link>
                     </li>
@@ -96,11 +96,11 @@ export default function Footer() {
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-base font-bold leading-6 text-white uppercase tracking-wider">Platforms</h3>
+                <h3 className="text-sm font-bold leading-6 text-white uppercase tracking-wider">Platforms</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   {navigation.platforms.map((item) => (
                     <li key={item.name}>
-                      <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-base leading-6 text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-3 group py-1">
+                      <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-sm leading-6 text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-3 group py-1">
                         <item.icon className="h-5 w-5 grayscale group-hover:grayscale-0 transition-all duration-200" aria-hidden="true" />
                         {item.name}
                       </a>
@@ -111,25 +111,25 @@ export default function Footer() {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-base font-bold leading-6 text-white uppercase tracking-wider">Legal</h3>
+                <h3 className="text-sm font-bold leading-6 text-white uppercase tracking-wider">Legal</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
-                    <Link to="#" className="text-base leading-6 text-gray-400 hover:text-white transition-colors duration-200 block py-1">
+                    <Link to="#" className="text-sm leading-6 text-gray-400 hover:text-white transition-colors duration-200 block py-1">
                       Privacy Policy
                     </Link>
                   </li>
                   <li>
-                    <Link to="#" className="text-base leading-6 text-gray-400 hover:text-white transition-colors duration-200 block py-1">
+                    <Link to="#" className="text-sm leading-6 text-gray-400 hover:text-white transition-colors duration-200 block py-1">
                       Terms of Service
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
-                <h3 className="text-base font-bold leading-6 text-white uppercase tracking-wider">Contact</h3>
+                <h3 className="text-sm font-bold leading-6 text-white uppercase tracking-wider">Contact</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
-                    <a href="mailto:support@contestplatform.com" className="text-base leading-6 text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-2 py-1">
+                    <a href="mailto:support@contestplatform.com" className="text-sm leading-6 text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-2 py-1">
                       <span>📧</span> Support
                     </a>
                   </li>
@@ -139,10 +139,10 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-12 border-t border-white/5 pt-8 sm:mt-16 sm:flex sm:items-center sm:justify-between">
-          <p className="text-sm leading-5 text-gray-500">
+          <p className="text-xs leading-5 text-gray-500">
             &copy; {new Date().getFullYear()} ContestPlatform. All rights reserved.
           </p>
-          <div className="mt-4 sm:mt-0 flex items-center gap-1 text-sm text-gray-500">
+          <div className="mt-4 sm:mt-0 flex items-center gap-1 text-xs text-gray-500">
             <span>Made with</span>
             <span className="text-red-500 animate-pulse">❤️</span>
             <span>by Ashik Hegde</span>

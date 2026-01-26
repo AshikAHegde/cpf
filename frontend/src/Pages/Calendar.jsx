@@ -296,7 +296,7 @@ export default function CalendarPage() {
                             <span className="text-[10px] font-bold tracking-wider text-blue-300 uppercase">
                               {event.platform}
                             </span>
-                            <span className="text-xs font-semibold text-gray-500">
+                            <span className="text-[10px] font-semibold text-gray-500">
                               • {formatDate(event.start)}
                             </span>
                           </div>
@@ -455,7 +455,7 @@ function renderEventContent(eventInfo) {
       <div className="flex items-center gap-1.5 min-w-0">
         {Icon && <Icon className="w-3.5 h-3.5 flex-shrink-0" />}
         <span
-          className="truncate leading-tight font-bold text-sm"
+          className="truncate leading-tight font-medium text-xs"
           style={{ color: eventInfo.event.extendedProps.contestColor }}
         >
           {eventInfo.event.title}
