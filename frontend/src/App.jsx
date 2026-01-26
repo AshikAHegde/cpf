@@ -6,6 +6,11 @@ import Dashboard from "./Pages/Dashboard.jsx";
 import Calendar from "./Pages/Calendar.jsx";
 import Team from "./Pages/Team.jsx";
 import Projects from "./Pages/Projects.jsx";
+import Profile from "./Pages/Profile.jsx";
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
+
 const App = () => {
   return (
     <div className="min-h-screen flex flex-col">
@@ -16,6 +21,7 @@ const App = () => {
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/team" element={<Team />} />
           <Route path="/projects" element={<Projects />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>
@@ -25,4 +31,3 @@ const App = () => {
 };
 
 export default App;
- 
