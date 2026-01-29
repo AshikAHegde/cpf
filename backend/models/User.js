@@ -10,10 +10,8 @@ const UserSchema = new mongoose.Schema({
     name: { type: String, default: '' },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    phoneNumber: { type: String, default: null },
     channels: {
-        email: { type: Boolean, default: true },
-        sms: { type: Boolean, default: false }
+        email: { type: Boolean, default: true }
     },
     reminders: {
         oneDay: { type: Boolean, default: false },
@@ -23,7 +21,7 @@ const UserSchema = new mongoose.Schema({
         {
             type: { type: String }, // 'REMINDER_1_DAY'
             contestId: String,
-            channel: String, // 'EMAIL', 'SMS'
+            channel: String, // 'EMAIL'
             status: String, // 'SENT', 'FAILED'
             timestamp: { type: Date, default: Date.now }
         }

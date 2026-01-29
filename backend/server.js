@@ -36,8 +36,15 @@ app.use(cookieParser());
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_in_production';
 
 // --- Middlewares ---
+// --- Middlewares ---
 const authMiddleware = async (req, res, next) => {
-    const token = req.cookies.token;
+    // Check for token in Cookies OR Authorization header (Bearer <token>)
+    let token = req.cookies.token;
+
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+
     if (!token) return res.status(401).json({ error: "Unauthorized: No token provided" });
 
     try {
@@ -56,13 +63,13 @@ const authMiddleware = async (req, res, next) => {
 // Register
 app.post('/api/users/register', async (req, res) => {
     try {
-        const { email, password, name, phoneNumber } = req.body;
+        const { email, password, name } = req.body;
         if (!email || !password) return res.status(400).json({ error: "Email and Password are required" });
 
         let user = await User.findOne({ email });
         if (user) return res.status(400).json({ error: "User already exists" });
 
-        user = new User({ email, password, name, phoneNumber });
+        user = new User({ email, password, name });
         await user.save();
 
         // Generate Token
@@ -70,12 +77,15 @@ app.post('/api/users/register', async (req, res) => {
 
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
-        res.status(201).json({ message: "User created", user: { email: user.email, name: user.name, preferences: { channels: user.channels, reminders: user.reminders } } });
+        // Return token in response as well for localStorage fallback
+        res.status(201).json({
+            message: "User created",
+            token,
+            user: { email: user.email, name: user.name, preferences: { channels: user.channels, reminders: user.reminders } }
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -97,12 +107,14 @@ app.post('/api/users/login', async (req, res) => {
 
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
-        res.json({ message: "Logged in", user: { email: user.email, name: user.name, preferences: { channels: user.channels, reminders: user.reminders } } });
+        res.json({
+            message: "Logged in",
+            token,
+            user: { email: user.email, name: user.name, preferences: { channels: user.channels, reminders: user.reminders } }
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -111,9 +123,7 @@ app.post('/api/users/login', async (req, res) => {
 // Logout
 app.post('/api/users/logout', (req, res) => {
     res.clearCookie('token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        httpOnly: true
     });
     res.json({ message: "Logged out" });
 });
@@ -133,11 +143,10 @@ app.get('/api/users/me', authMiddleware, async (req, res) => {
 // Update User Preferences (Protected)
 app.put('/api/users/preferences', authMiddleware, async (req, res) => {
     try {
-        const { name, phoneNumber, channels, reminders } = req.body;
+        const { name, channels, reminders } = req.body;
         const user = req.user;
 
         user.name = name !== undefined ? name : user.name;
-        user.phoneNumber = phoneNumber !== undefined ? phoneNumber : user.phoneNumber;
         if (channels) user.channels = channels;
         if (reminders) user.reminders = reminders;
 

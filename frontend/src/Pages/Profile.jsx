@@ -18,12 +18,12 @@ const Profile = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        password: '', // Added password field
-        phone: ''
+        password: '',
+        // phone removed
     });
 
     // NOTE: Missing state variables restored here
-    const [channels, setChannels] = useState({ email: true, sms: false });
+    const [channels, setChannels] = useState({ email: true });
     const [reminders, setReminders] = useState({ oneDay: false, twoDays: false });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +37,10 @@ const Profile = () => {
     const fetchCurrentUser = async () => {
         setIsLoading(true);
         try {
-            const res = await axios.get(`${API_URL}/users/me`).catch(() => null);
+            const token = localStorage.getItem('token');
+            const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
+            const res = await axios.get(`${API_URL}/users/me`, config).catch(() => null);
 
             if (res && res.data) {
                 const data = res.data;
@@ -45,7 +48,6 @@ const Profile = () => {
                     ...prev,
                     name: data.name || '',
                     email: data.email || '',
-                    phone: data.phoneNumber || '',
                     password: '' // Don't show password
                 }));
                 if (data.channels) setChannels(prev => ({ ...prev, ...data.channels }));
@@ -54,7 +56,10 @@ const Profile = () => {
                 setIsLoaded(true);
             }
         } catch (error) {
-            console.error("Not logged in");
+            console.error("Not logged in or profile fetch failed:", error);
+            if (error.response) {
+                console.error("Server response:", error.response.status, error.response.data);
+            }
         } finally {
             setIsLoading(false);
         }
@@ -68,21 +73,27 @@ const Profile = () => {
         console.log("Submitting Auth:", authMode, formData);
 
         try {
+            let res;
             if (authMode === 'signup') {
-                await axios.post(`${API_URL}/users/register`, {
+                res = await axios.post(`${API_URL}/users/register`, {
                     email: formData.email,
                     password: formData.password,
-                    name: formData.name,
-                    phoneNumber: formData.phone
+                    name: formData.name
                 });
                 toast.success('Account created! You are logged in.');
             } else {
-                await axios.post(`${API_URL}/users/login`, {
+                res = await axios.post(`${API_URL}/users/login`, {
                     email: formData.email,
                     password: formData.password
                 });
                 toast.success('Logged in successfully!');
             }
+
+            // Save token
+            if (res.data.token) {
+                localStorage.setItem('token', res.data.token);
+            }
+
             // After successful login/signup, fetch profile
             fetchCurrentUser();
         } catch (err) {
@@ -96,12 +107,14 @@ const Profile = () => {
     const handleUpdateProfile = async () => {
         setIsLoading(true);
         try {
+            const token = localStorage.getItem('token');
+            const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+
             await axios.put(`${API_URL}/users/preferences`, {
                 name: formData.name,
-                phoneNumber: formData.phone,
                 channels,
                 reminders
-            });
+            }, config);
             toast.success('Preferences updated!');
             navigate('/dashboard');
         } catch (err) {
@@ -114,10 +127,11 @@ const Profile = () => {
 
     const handleLogout = async () => {
         try {
+            localStorage.removeItem('token'); // Clear token
             await axios.post(`${API_URL}/users/logout`);
             setIsLoaded(false);
-            setFormData({ name: '', email: '', password: '', phone: '' });
-            setChannels({ email: true, sms: false }); // Reset defaults
+            setFormData({ name: '', email: '', password: '' });
+            setChannels({ email: true }); // Reset defaults
             setReminders({ oneDay: false, twoDays: false }); // Reset defaults
             setAuthMode('login');
             toast.success("Logged out successfully");

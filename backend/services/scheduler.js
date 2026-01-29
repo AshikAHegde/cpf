@@ -2,7 +2,6 @@ const cron = require('node-cron');
 const { fetchContests } = require('./contestService');
 const User = require('../models/User');
 const { sendEmail } = require('./emailService');
-const { sendSMS } = require('./smsService');
 
 const startScheduler = () => {
     // Run every hour to check for upcoming contests
@@ -15,7 +14,7 @@ const startScheduler = () => {
 
             for (const user of users) {
                 // If user has no notifications enabled, skip
-                if (!user.channels?.email && !user.channels?.sms) continue;
+                if (!user.channels?.email) continue;
 
                 for (const contest of contests) {
                     const contestStart = new Date(contest.start);
@@ -48,7 +47,6 @@ const sendNotification = async (user, contest, type) => {
     if (alreadySent) return;
 
     let emailSent = false;
-    let smsSent = false;
 
     const subject = `Upcoming Contest: ${contest.title}`;
     const message = `Don't forget! ${contest.title} on ${contest.platform} starts at ${new Date(contest.start).toLocaleString()}.`;
@@ -58,17 +56,12 @@ const sendNotification = async (user, contest, type) => {
         emailSent = await sendEmail(user.email, subject, message, message);
     }
 
-    // Send SMS
-    if (user.channels?.sms && user.phoneNumber) {
-        smsSent = await sendSMS(user.phoneNumber, message);
-    }
-
     // Add to history if at least one succeeded
-    if (emailSent || smsSent) {
+    if (emailSent) {
         user.notificationHistory.push({
             type,
             contestId: contest.title,
-            channel: emailSent && smsSent ? 'EMAIL_AND_SMS' : (emailSent ? 'EMAIL' : 'SMS'),
+            channel: 'EMAIL',
             status: 'SENT'
         });
         await user.save();

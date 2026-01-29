@@ -53,15 +53,6 @@ const ProfileSettings = ({
                                 className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                             />
                         </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Phone Number</label>
-                            <input
-                                type="tel"
-                                value={formData.phone}
-                                onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                            />
-                        </div>
                     </div>
                 </section>
 
@@ -85,16 +76,6 @@ const ProfileSettings = ({
                                         {channels.email && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                                     </div>
                                     Email Notifications
-                                </button>
-                                <button
-                                    disabled
-                                    className="flex items-center gap-3 px-5 py-3 rounded-xl border border-gray-800 bg-[#0a0a0f] text-gray-500 cursor-not-allowed opacity-60"
-                                >
-                                    <div className="w-5 h-5 rounded flex items-center justify-center border border-gray-700">
-                                        {/* Icon placeholders removed or kept simple */}
-                                    </div>
-                                    SMS Notifications
-                                    <span className="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Soon</span>
                                 </button>
                             </div>
                         </div>

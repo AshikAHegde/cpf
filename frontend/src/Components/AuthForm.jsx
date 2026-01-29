@@ -58,20 +58,7 @@ const AuthForm = ({ authMode, setAuthMode, formData, setFormData, handleAuthSubm
                     />
                 </div>
 
-                {/* Phone is usually asked in signup or profile, used for SMS */}
-                {authMode === 'signup' && (
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Phone Number</label>
-                        <input
-                            required={authMode === 'signup'}
-                            type="tel"
-                            placeholder="+1 234 567 8900"
-                            value={formData.phone}
-                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                        />
-                    </div>
-                )}
+                {/* Phone removed */}
 
                 <button
                     type="submit"
