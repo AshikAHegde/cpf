@@ -58,7 +58,50 @@ const AuthForm = ({ authMode, setAuthMode, formData, setFormData, handleAuthSubm
                     />
                 </div>
 
-                {/* Phone removed */}
+                {authMode === 'signup' && (
+                    <>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">LeetCode Handle</label>
+                            <input
+                                type="text"
+                                placeholder="leetcode_user"
+                                value={formData.leetcode || ''}
+                                onChange={e => setFormData({ ...formData, leetcode: e.target.value })}
+                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Codeforces Handle</label>
+                            <input
+                                type="text"
+                                placeholder="codeforces_user"
+                                value={formData.codeforces || ''}
+                                onChange={e => setFormData({ ...formData, codeforces: e.target.value })}
+                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">CodeChef Handle</label>
+                            <input
+                                type="text"
+                                placeholder="codechef_user"
+                                value={formData.codechef || ''}
+                                onChange={e => setFormData({ ...formData, codechef: e.target.value })}
+                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">AtCoder Handle</label>
+                            <input
+                                type="text"
+                                placeholder="atcoder_user"
+                                value={formData.atcoder || ''}
+                                onChange={e => setFormData({ ...formData, atcoder: e.target.value })}
+                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            />
+                        </div>
+                    </>
+                )}
 
                 <button
                     type="submit"

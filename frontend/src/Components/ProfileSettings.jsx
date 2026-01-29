@@ -44,13 +44,63 @@ const ProfileSettings = ({
                         Personal Details
                     </h3>
                     <div className="grid md:grid-cols-2 gap-6">
-                        <div>
+                        <div className="md:col-span-2">
                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Display Name</label>
                             <input
                                 type="text"
                                 value={formData.name}
                                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                {/* CP Platforms */}
+                <section className="bg-[#13131f] border border-white/10 rounded-3xl p-8 shadow-xl">
+                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <span className="w-1 h-6 bg-green-500 rounded-full" />
+                        CP Platforms
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">LeetCode</label>
+                            <input
+                                type="text"
+                                value={formData.leetcode || ''}
+                                onChange={e => setFormData({ ...formData, leetcode: e.target.value })}
+                                placeholder="username"
+                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Codeforces</label>
+                            <input
+                                type="text"
+                                value={formData.codeforces || ''}
+                                onChange={e => setFormData({ ...formData, codeforces: e.target.value })}
+                                placeholder="handle"
+                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-yellow-500 outline-none transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">CodeChef</label>
+                            <input
+                                type="text"
+                                value={formData.codechef || ''}
+                                onChange={e => setFormData({ ...formData, codechef: e.target.value })}
+                                placeholder="username"
+                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">AtCoder</label>
+                            <input
+                                type="text"
+                                value={formData.atcoder || ''}
+                                onChange={e => setFormData({ ...formData, atcoder: e.target.value })}
+                                placeholder="username"
+                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-gray-500 outline-none transition-all"
                             />
                         </div>
                     </div>

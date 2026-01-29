@@ -19,7 +19,11 @@ const Profile = () => {
         name: '',
         email: '',
         password: '',
-        // phone removed
+        // CP Handles (mapped for easier form handling)
+        leetcode: '',
+        codeforces: '',
+        codechef: '',
+        atcoder: ''
     });
 
     // NOTE: Missing state variables restored here
@@ -44,11 +48,19 @@ const Profile = () => {
 
             if (res && res.data) {
                 const data = res.data;
+                const handles = data.platformHandles || [];
+                // Helper to find handle
+                const getHandle = (p) => handles.find(h => h.platform === p)?.handle || '';
+
                 setFormData(prev => ({
                     ...prev,
                     name: data.name || '',
                     email: data.email || '',
-                    password: '' // Don't show password
+                    password: '', // Don't show password
+                    leetcode: getHandle('LeetCode'),
+                    codeforces: getHandle('Codeforces'),
+                    codechef: getHandle('CodeChef'),
+                    atcoder: getHandle('AtCoder')
                 }));
                 if (data.channels) setChannels(prev => ({ ...prev, ...data.channels }));
                 if (data.reminders) setReminders(prev => ({ ...prev, ...data.reminders }));
@@ -72,13 +84,22 @@ const Profile = () => {
 
         console.log("Submitting Auth:", authMode, formData);
 
+        // Construct platformHandles array
+        const platformHandles = [
+            { platform: 'LeetCode', handle: formData.leetcode || '' },
+            { platform: 'Codeforces', handle: formData.codeforces || '' },
+            { platform: 'CodeChef', handle: formData.codechef || '' },
+            { platform: 'AtCoder', handle: formData.atcoder || '' }
+        ];
+
         try {
             let res;
             if (authMode === 'signup') {
                 res = await axios.post(`${API_URL}/users/register`, {
                     email: formData.email,
                     password: formData.password,
-                    name: formData.name
+                    name: formData.name,
+                    platformHandles
                 });
                 toast.success('Account created! You are logged in.');
             } else {
@@ -110,10 +131,19 @@ const Profile = () => {
             const token = localStorage.getItem('token');
             const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
+            // Construct platformHandles array
+            const platformHandles = [
+                { platform: 'LeetCode', handle: formData.leetcode || '' },
+                { platform: 'Codeforces', handle: formData.codeforces || '' },
+                { platform: 'CodeChef', handle: formData.codechef || '' },
+                { platform: 'AtCoder', handle: formData.atcoder || '' }
+            ];
+
             await axios.put(`${API_URL}/users/preferences`, {
                 name: formData.name,
                 channels,
-                reminders
+                reminders,
+                platformHandles
             }, config);
             toast.success('Preferences updated!');
             navigate('/dashboard');
@@ -130,7 +160,7 @@ const Profile = () => {
             localStorage.removeItem('token'); // Clear token
             await axios.post(`${API_URL}/users/logout`);
             setIsLoaded(false);
-            setFormData({ name: '', email: '', password: '' });
+            setFormData({ name: '', email: '', password: '', leetcode: '', codeforces: '', codechef: '', atcoder: '' });
             setChannels({ email: true }); // Reset defaults
             setReminders({ oneDay: false, twoDays: false }); // Reset defaults
             setAuthMode('login');
