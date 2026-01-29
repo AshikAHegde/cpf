@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import AuthForm from '../Components/AuthForm.jsx';
 import ProfileSettings from '../Components/ProfileSettings.jsx';
 
@@ -74,16 +75,18 @@ const Profile = () => {
                     name: formData.name,
                     phoneNumber: formData.phone
                 });
-                setMessage({ type: 'success', text: 'Account created! You are logged in.' });
+                toast.success('Account created! You are logged in.');
             } else {
                 await axios.post(`${API_URL}/users/login`, {
                     email: formData.email,
                     password: formData.password
                 });
+                toast.success('Logged in successfully!');
             }
             // After successful login/signup, fetch profile
             fetchCurrentUser();
         } catch (err) {
+            toast.error(err.response?.data?.error || 'Authentication failed');
             setMessage({ type: 'error', text: err.response?.data?.error || 'Authentication failed' });
         } finally {
             setIsLoading(false);
@@ -99,8 +102,10 @@ const Profile = () => {
                 channels,
                 reminders
             });
-            setMessage({ type: 'success', text: 'Preferences updated!' });
+            toast.success('Preferences updated!');
+            navigate('/dashboard');
         } catch (err) {
+            toast.error('Failed to update.');
             setMessage({ type: 'error', text: 'Failed to update.' });
         } finally {
             setIsLoading(false);
@@ -115,8 +120,10 @@ const Profile = () => {
             setChannels({ email: true, sms: false }); // Reset defaults
             setReminders({ oneDay: false, twoDays: false }); // Reset defaults
             setAuthMode('login');
+            toast.success("Logged out successfully");
         } catch (err) {
             console.error("Logout failed", err);
+            toast.error("Logout failed");
         }
     };
 

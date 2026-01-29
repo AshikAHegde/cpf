@@ -6,6 +6,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { AtCoderIcon, CodeChefIcon, CodeforcesIcon, LeetCodeIcon } from "../Components/PlatformIcons";
 import { EnvelopeIcon, DevicePhoneMobileIcon, ClockIcon, BellIcon, CalendarDaysIcon } from '@heroicons/react/24/solid';
 import ContestModal from "../Components/ContestModal";
+import Loading from "../Components/Loading";
 
 const platformIcons = {
   Codeforces: CodeforcesIcon,
@@ -33,12 +34,20 @@ export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [userPreferences, setUserPreferences] = useState(null);
   const [currentViewDate, setCurrentViewDate] = useState(new Date());
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Fetch Contests
+    setLoading(true);
     axios.get(`${import.meta.env.VITE_API_URL}/api/contests`)
-      .then((res) => setEvents(res.data))
-      .catch((err) => console.error("Error fetching contests:", err));
+      .then((res) => {
+        setEvents(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching contests:", err);
+        setLoading(false);
+      });
 
     // Fetch User Preferences if logged in
     const userEmail = localStorage.getItem('userEmail');
@@ -162,6 +171,21 @@ export default function CalendarPage() {
     setIsModalOpen(true);
   }
 
+  const handleSidebarClick = (e, contest) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    // Position the modal to the left of the sidebar item if possible, or contextually appropriate
+    // Sidebar is on the right, so we might want it to appear to the left of the item
+    // But ContestModal logic handles positioning (mostly bottom/right logic fallback or just x,y).
+    // Let's pass the element's position.
+    setPopoverPos({
+      x: rect.left, // Align with left edge of item
+      y: rect.bottom + 5 // Below item
+    });
+    setSelectedContest(contest);
+    setIsModalOpen(true);
+  };
+
   const handleAddToCalendar = (contest) => {
     if (!contest) return;
     const start = new Date(contest.start).toISOString().replace(/-|:|\.\d\d\d/g, "");
@@ -198,40 +222,44 @@ export default function CalendarPage() {
         <div className="flex flex-col xl:flex-row gap-8">
           <div className="flex-1 bg-[#13131f]/60 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden ring-1 ring-white/5">
             <div className="p-6">
-              <FullCalendar
-                plugins={[dayGridPlugin, interactionPlugin]}
-                initialView="dayGridMonth"
-                events={events.map((event) => ({
-                  ...event,
-                  backgroundColor: "transparent",
-                  borderColor: "transparent",
-                  textColor: "inherit",
-                  extendedProps: {
-                    ...event.extendedProps,
-                    contestColor: event.color,
-                    userPreferences: userPreferences // Pass prefs to event
-                  },
-                }))}
-                height="auto"
-                headerToolbar={{
-                  left: "prev,next today",
-                  center: "title",
-                  right: "dayGridMonth",
-                }}
-                datesSet={(dateInfo) => {
-                  // Determine the current month being viewed based on the midpoint of the visible range
-                  const midDate = new Date(dateInfo.view.currentStart);
-                  midDate.setDate(midDate.getDate() + 15);
-                  setCurrentViewDate(midDate);
-                }}
-                eventContent={renderEventContent}
-                eventClick={handleEventClick}
-                dayCellClassNames="hover:bg-white/5 transition-colors duration-200 cursor-pointer"
-                eventClassNames="transition-all duration-200 hover:scale-[1.02] hover:brightness-110 shadow-md"
-                dayMaxEvents={3}
-                moreLinkText="more"
-                moreLinkClassNames="text-blue-400 hover:text-blue-300 font-semibold text-xs"
-              />
+              {loading ? (
+                <Loading />
+              ) : (
+                <FullCalendar
+                  plugins={[dayGridPlugin, interactionPlugin]}
+                  initialView="dayGridMonth"
+                  events={events.map((event) => ({
+                    ...event,
+                    backgroundColor: "transparent",
+                    borderColor: "transparent",
+                    textColor: "inherit",
+                    extendedProps: {
+                      ...event.extendedProps,
+                      contestColor: event.color,
+                      userPreferences: userPreferences // Pass prefs to event
+                    },
+                  }))}
+                  height="auto"
+                  headerToolbar={{
+                    left: "prev,next today",
+                    center: "title",
+                    right: "dayGridMonth",
+                  }}
+                  datesSet={(dateInfo) => {
+                    // Determine the current month being viewed based on the midpoint of the visible range
+                    const midDate = new Date(dateInfo.view.currentStart);
+                    midDate.setDate(midDate.getDate() + 15);
+                    setCurrentViewDate(midDate);
+                  }}
+                  eventContent={renderEventContent}
+                  eventClick={handleEventClick}
+                  dayCellClassNames="hover:bg-white/5 transition-colors duration-200 cursor-pointer"
+                  eventClassNames="transition-all duration-200 hover:scale-[1.02] hover:brightness-110 shadow-md"
+                  dayMaxEvents={3}
+                  moreLinkText="more"
+                  moreLinkClassNames="text-blue-400 hover:text-blue-300 font-semibold text-xs"
+                />
+              )}
             </div>
           </div>
 
@@ -285,6 +313,7 @@ export default function CalendarPage() {
                   return (
                     <div
                       key={idx}
+                      onClick={(e) => handleSidebarClick(e, event)}
                       className="group relative bg-[#1c1c2e] rounded-2xl p-4 border border-white/5 hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 cursor-pointer overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:via-blue-500/5 group-hover:to-transparent transition-all duration-500" />
