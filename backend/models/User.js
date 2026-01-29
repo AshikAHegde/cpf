@@ -1,9 +1,4 @@
 const mongoose = require('mongoose');
-
-
-
-
-
 const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema({
@@ -16,6 +11,20 @@ const UserSchema = new mongoose.Schema({
     reminders: {
         oneDay: { type: Boolean, default: false },
         twoDays: { type: Boolean, default: false }
+    },
+    platformHandles: {
+        type: [
+            {
+                platform: { type: String, required: true },
+                handle: { type: String, default: '' }
+            }
+        ],
+        default: [
+            { platform: 'LeetCode', handle: '' },
+            { platform: 'Codeforces', handle: '' },
+            { platform: 'CodeChef', handle: '' },
+            { platform: 'AtCoder', handle: '' }
+        ]
     },
     notificationHistory: [
         {

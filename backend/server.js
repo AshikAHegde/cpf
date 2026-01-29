@@ -20,7 +20,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// MongoDB Connection
+
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/cpf')
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.error('MongoDB Connection Error:', err));
@@ -35,8 +35,7 @@ app.use(cookieParser());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_in_production';
 
-// --- Middlewares ---
-// --- Middlewares ---
+
 const authMiddleware = async (req, res, next) => {
     // Check for token in Cookies OR Authorization header (Bearer <token>)
     let token = req.cookies.token;
@@ -60,16 +59,16 @@ const authMiddleware = async (req, res, next) => {
 
 // --- User Routes ---
 
-// Register
+
 app.post('/api/users/register', async (req, res) => {
     try {
-        const { email, password, name } = req.body;
+        const { email, password, name, platformHandles } = req.body;
         if (!email || !password) return res.status(400).json({ error: "Email and Password are required" });
 
         let user = await User.findOne({ email });
         if (user) return res.status(400).json({ error: "User already exists" });
 
-        user = new User({ email, password, name });
+        user = new User({ email, password, name, platformHandles });
         await user.save();
 
         // Generate Token
@@ -84,14 +83,19 @@ app.post('/api/users/register', async (req, res) => {
         res.status(201).json({
             message: "User created",
             token,
-            user: { email: user.email, name: user.name, preferences: { channels: user.channels, reminders: user.reminders } }
+            user: {
+                email: user.email,
+                name: user.name,
+                platformHandles: user.platformHandles,
+                preferences: { channels: user.channels, reminders: user.reminders }
+            }
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Login
+
 app.post('/api/users/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -113,14 +117,19 @@ app.post('/api/users/login', async (req, res) => {
         res.json({
             message: "Logged in",
             token,
-            user: { email: user.email, name: user.name, preferences: { channels: user.channels, reminders: user.reminders } }
+            user: {
+                email: user.email,
+                name: user.name,
+                platformHandles: user.platformHandles,
+                preferences: { channels: user.channels, reminders: user.reminders }
+            }
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Logout
+
 app.post('/api/users/logout', (req, res) => {
     res.clearCookie('token', {
         httpOnly: true
@@ -128,27 +137,22 @@ app.post('/api/users/logout', (req, res) => {
     res.json({ message: "Logged out" });
 });
 
-// Get Current User (Protected)
+
 app.get('/api/users/me', authMiddleware, async (req, res) => {
     res.json(req.user);
 });
 
 
-// Get User Preferences (Previous Route - now Protected or removed? Keeping for now but strictly it should be 'me')
-// We can use 'me' instead of getting by email, for security.
-// But satisfying previous frontend behavior, let's keep it but secure it if possible.
-// Actually, let's Redirect /api/users/:email calls to /api/users/me if it matches logged in user, or just rely on 'me'.
-// For simplicity with frontend changes, I will use /api/users/me for loading profile. (See plan)
 
-// Update User Preferences (Protected)
 app.put('/api/users/preferences', authMiddleware, async (req, res) => {
     try {
-        const { name, channels, reminders } = req.body;
+        const { name, channels, reminders, platformHandles } = req.body;
         const user = req.user;
 
         user.name = name !== undefined ? name : user.name;
         if (channels) user.channels = channels;
         if (reminders) user.reminders = reminders;
+        if (platformHandles) user.platformHandles = platformHandles;
 
         await user.save();
         res.json(user);
@@ -157,7 +161,7 @@ app.put('/api/users/preferences', authMiddleware, async (req, res) => {
     }
 });
 
-// --- Contest Routes ---
+
 
 app.get('/api/contests', async (req, res) => {
     try {
@@ -166,6 +170,48 @@ app.get('/api/contests', async (req, res) => {
     } catch (error) {
         console.error("Error fetching contests:", error);
         res.status(500).json({ error: "Failed to fetch contests" });
+    }
+});
+
+
+const { fetchLeetCode, fetchCodeforces, fetchCodeChef, fetchAtCoder } = require('./services/platformService');
+
+app.get('/api/users/stats', authMiddleware, async (req, res) => {
+    try {
+        const user = req.user;
+        const stats = {};
+        const handles = user.platformHandles || [];
+
+        // Parallelize fetching
+        const promises = handles.map(async (item) => {
+            if (!item.handle) return null;
+
+            switch (item.platform) {
+                case 'LeetCode':
+                    return await fetchLeetCode(item.handle);
+                case 'Codeforces':
+                    return await fetchCodeforces(item.handle);
+                case 'CodeChef':
+                    return await fetchCodeChef(item.handle);
+                case 'AtCoder':
+                    return await fetchAtCoder(item.handle);
+                default:
+                    return null;
+            }
+        });
+
+        const results = await Promise.all(promises);
+
+        results.forEach(result => {
+            if (result && result.platform) {
+                stats[result.platform.toLowerCase()] = result;
+            }
+        });
+
+        res.json(stats);
+    } catch (err) {
+        console.error("Stats fetch error:", err);
+        res.status(500).json({ error: "Failed to fetch stats" });
     }
 });
 
