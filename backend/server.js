@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 const mongoose = require('mongoose');
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://10.238.38.58:5173'], // Allow both localhost and network IP
+    origin: true, // Allow any origin
     credentials: true
 }));
 app.use(express.json());
