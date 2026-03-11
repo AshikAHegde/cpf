@@ -5,11 +5,26 @@ const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const IS_PROD = process.env.NODE_ENV === 'production';
 
 const mongoose = require('mongoose');
 
+const allowedOrigins = (process.env.FRONTEND_URL || '')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
+
 app.use(cors({
-    origin: true, // Allow any origin
+    origin: (origin, callback) => {
+        // Allow server-to-server and local tools with no origin header
+        if (!origin) return callback(null, true);
+
+        // If no allowlist is provided, keep development friction low
+        if (allowedOrigins.length === 0) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true
 }));
 app.use(express.json());
@@ -34,6 +49,17 @@ const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_in_production';
+
+if (!process.env.JWT_SECRET) {
+    console.warn('JWT_SECRET is not set. Using fallback secret for local development only.');
+}
+
+const getCookieOptions = () => ({
+    httpOnly: true,
+    secure: IS_PROD,
+    sameSite: IS_PROD ? 'none' : 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000
+});
 
 
 const authMiddleware = async (req, res, next) => {
@@ -74,10 +100,7 @@ app.post('/api/users/register', async (req, res) => {
         // Generate Token
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
+        res.cookie('token', token, getCookieOptions());
 
         // Return token in response as well for localStorage fallback
         res.status(201).json({
@@ -109,10 +132,7 @@ app.post('/api/users/login', async (req, res) => {
 
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
+        res.cookie('token', token, getCookieOptions());
 
         res.json({
             message: "Logged in",
@@ -132,7 +152,9 @@ app.post('/api/users/login', async (req, res) => {
 
 app.post('/api/users/logout', (req, res) => {
     res.clearCookie('token', {
-        httpOnly: true
+        httpOnly: true,
+        secure: IS_PROD,
+        sameSite: IS_PROD ? 'none' : 'lax'
     });
     res.json({ message: "Logged out" });
 });
