@@ -1,63 +1,74 @@
-# CPF - Competitive Programming Fusion Platform
+# CPF - Contest Pulse Feed
 
-CPF is a full-stack web app that helps you track upcoming competitive programming contests and monitor your profile stats across multiple platforms.
+CPF is a competitive programming contest tracker. This repository contains two versions of the same idea:
 
-## Resume Summary
+- **Full JavaScript version:** React frontend with a Node.js/Express backend.
+- **Python Flask version:** Flask app with server-rendered templates.
 
-`CPF - Competitive Programming Fusion Platform` - Link  
-`11/2025 - 12/2025 | Pune`
+Both versions help track contests from platforms like LeetCode, Codeforces, CodeChef, and AtCoder, and include user/profile features for managing coding platform handles.
 
-- Developed a centralized CP contest aggregator using React, Node.js, and Express.js, exposing REST APIs with CORS support and managing data on MongoDB Atlas.
-- Implemented authentication using JWT, handled sessions with `cookie-parser`, and integrated automated email reminders via Nodemailer based on user notification preferences.
+## Projects In This Repository
 
-It combines:
-- a React frontend for dashboard, calendar, and profile management
-- a Node.js/Express backend for auth, contest aggregation, notifications, and platform stats
-- MongoDB for user accounts, preferences, and notification history
+### 1. JavaScript Full-Stack App
 
-## What This Project Does
+This is the newer full-stack version.
 
-- Aggregates upcoming contests from multiple platforms in one place.
-- Shows cross-platform profile stats for:
-	- LeetCode
-	- Codeforces
-	- CodeChef
-	- AtCoder
-- Supports user auth (signup/login/logout) with JWT + cookie session handling.
-- Lets users configure reminder preferences.
-- Sends scheduled email reminders before contests.
+- **Frontend:** React, Vite, Tailwind CSS, Framer Motion, FullCalendar, Recharts
+- **Backend:** Node.js, Express, Mongoose, JWT, Node-Cron, Nodemailer
+- **Database:** MongoDB
+- **Folders:** `frontend/`, `backend/`
 
-## Tech Stack
+Main features:
 
-- Frontend: React (Vite), Tailwind CSS, Framer Motion, FullCalendar, Recharts
-- Backend: Node.js, Express, Mongoose, JWT, Node-Cron, Nodemailer
-- Database: MongoDB
+- Contest calendar and dashboard
+- User authentication
+- Profile and platform handle management
+- Cross-platform stats
+- Email reminder scheduler
+
+### 2. Python Flask App
+
+This is the Flask-based version.
+
+- **Backend:** Flask, Python
+- **Database:** MySQL
+- **Frontend:** HTML, CSS, JavaScript, Chart.js
+- **Folder:** `flask_based_app/`
+
+Main features:
+
+- Contest aggregator
+- Login and registration
+- Personalized contest dashboard
+- Profile page with platform handles
+- Platform statistics and chart visualization
 
 ## Project Structure
 
 ```text
 cpf/
-	backend/
-		server.js
-		models/
-		services/
-	frontend/
-		src/
-			Components/
-			Pages/
+├── backend/                 # Node.js / Express backend
+│   ├── server.js
+│   ├── models/
+│   └── services/
+├── frontend/                # React / Vite frontend
+│   └── src/
+│       ├── Components/
+│       └── Pages/
+└── flask_based_app/         # Python Flask implementation
+    ├── app.py
+    ├── requirements.txt
+    ├── run.sh
+    ├── services/
+    ├── static/
+    └── templates/
 ```
 
-## Prerequisites
+## Running The JavaScript Version
 
-- Node.js 18+ (recommended)
-- npm
-- MongoDB running locally or a MongoDB Atlas URI
+### Backend
 
-## Environment Variables
-
-### Backend (`backend/.env`)
-
-Create `backend/.env` and set values like these:
+Create `backend/.env`:
 
 ```env
 PORT=5000
@@ -73,11 +84,15 @@ LEETCODE_API_URL=your_leetcode_contest_endpoint
 CODECHEF_API_URL=your_codechef_contest_endpoint
 ```
 
-Notes:
-- `EMAIL_USER` and `EMAIL_PASS` are optional. If missing, email reminders are skipped.
-- `LEETCODE_API_URL` and `CODECHEF_API_URL` should return data in a shape the backend expects.
+Install and run:
 
-### Frontend (`frontend/.env`)
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Frontend
 
 Create `frontend/.env`:
 
@@ -85,70 +100,67 @@ Create `frontend/.env`:
 VITE_API_URL=http://localhost:5000
 ```
 
-## Local Setup
-
-1. Install backend dependencies:
+Install and run:
 
 ```bash
-cd backend
+cd frontend
 npm install
-```
-
-2. Install frontend dependencies:
-
-```bash
-cd ../frontend
-npm install
-```
-
-3. Start backend (from `backend/`):
-
-```bash
 npm run dev
 ```
 
-4. Start frontend (from `frontend/`):
+The React app usually runs at:
 
-```bash
-npm run dev
+```text
+http://localhost:5173
 ```
 
-5. Open the frontend URL shown by Vite (usually `http://localhost:5173`).
+## Running The Flask Version
 
-## Backend API (Main Endpoints)
+Go to the Flask app:
 
-- `POST /api/users/register`
-- `POST /api/users/login`
-- `POST /api/users/logout`
-- `GET /api/users/me`
-- `PUT /api/users/preferences`
-- `GET /api/contests`
-- `GET /api/users/stats`
+```bash
+cd flask_based_app
+```
 
-## Scheduler and Notifications
+Create and activate a virtual environment:
 
-- A cron scheduler runs every hour.
-- For users with email reminders enabled, it checks contests starting in:
-	- ~24 hours (one-day reminder)
-	- ~48 hours (two-day reminder)
-- Notification history is stored to avoid duplicate sends.
+```bash
+python -m venv venv
+source venv/bin/activate
+```
 
-## Scripts
+Install dependencies:
 
-### Backend
-- `npm run dev` - run backend with nodemon
-- `npm start` - run backend with node
+```bash
+pip install -r requirements.txt
+```
 
-### Frontend
-- `npm run dev` - start Vite dev server
-- `npm run build` - build production bundle
-- `npm run preview` - preview production build
-- `npm run lint` - run ESLint
+Create `flask_based_app/.env`:
 
-## Current Scope
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=your_db_user
+DB_PASS=your_db_password
+DB_NAME=your_db_name
+JWT_SECRET=a_super_secret_key
+```
 
-This project is currently focused on core user flow and contest tracking. It is suitable as a strong base for adding:
-- push notifications
-- Discord/Telegram channels
-- richer analytics and charts
-- deployment-ready auth/security hardening
+Run the Flask app:
+
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+The Flask app starts at:
+
+```text
+http://127.0.0.1:5000
+```
+
+## Notes
+
+- Use `backend/` and `frontend/` for the JavaScript full-stack app.
+- Use `flask_based_app/` for the Python Flask app.
+- Both apps use port `5000` for the backend/server, so run only one backend at a time unless you change the port.
