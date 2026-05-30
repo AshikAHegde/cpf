@@ -103,6 +103,16 @@ const ProfileSettings = ({
                                 className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-gray-500 outline-none transition-all"
                             />
                         </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">GFG</label>
+                            <input
+                                type="text"
+                                value={formData.gfg || ''}
+                                onChange={e => setFormData({ ...formData, gfg: e.target.value })}
+                                placeholder="handle"
+                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                            />
+                        </div>
                     </div>
                 </section>
 

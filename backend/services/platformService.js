@@ -37,6 +37,24 @@ const fetchLeetCode = async (handle) => {
             variables: { username: handle }
         });
 
+        // Fetch calendar separately to avoid complexity in a single query if needed, 
+        // or just add it to the main query. Let's add it to the main query.
+        const calendarQuery = `
+            query userProfileCalendar($username: String!) {
+                matchedUser(username: $username) {
+                    userCalendar {
+                        submissionCalendar
+                        streak
+                        totalActiveDays
+                    }
+                }
+            }
+        `;
+        const calendarResponse = await axios.post('https://leetcode.com/graphql', {
+            query: calendarQuery,
+            variables: { username: handle }
+        });
+
         if (response.data.errors || !response.data.data.matchedUser) {
             return { platform: 'LeetCode', handle, error: "User not found", success: false };
         }
@@ -55,6 +73,16 @@ const fetchLeetCode = async (handle) => {
                 }))
             : [];
 
+        const calendarData = calendarResponse.data.data?.matchedUser?.userCalendar || {};
+        const submissionCalendar = calendarData.submissionCalendar ? JSON.parse(calendarData.submissionCalendar) : {};
+        
+        // Convert submissionCalendar (timestamp in seconds) to YYYY-MM-DD
+        const calendar = {};
+        Object.entries(submissionCalendar).forEach(([ts, count]) => {
+            const date = new Date(parseInt(ts) * 1000).toISOString().split('T')[0];
+            calendar[date] = (calendar[date] || 0) + count;
+        });
+
         return {
             platform: 'LeetCode',
             handle,
@@ -62,6 +90,9 @@ const fetchLeetCode = async (handle) => {
             rating,
             ranking: data.matchedUser.profile.ranking,
             history,
+            calendar,
+            streak: calendarData.streak,
+            totalActiveDays: calendarData.totalActiveDays,
             success: true
         };
     } catch (err) {
@@ -90,13 +121,34 @@ const fetchCodeforces = async (handle) => {
             }))
             : [];
 
+        // Fetch recent submissions for activity and TOTAL SOLVED
+        let calendar = {};
+        let solved = 0;
+        try {
+            const statusRes = await axios.get(`https://codeforces.com/api/user.status?handle=${handle}&from=1&count=10000`);
+            if (statusRes.data.status === 'OK') {
+                const uniqueSolved = new Set();
+                statusRes.data.result.forEach(sub => {
+                    const date = new Date(sub.creationTimeSeconds * 1000).toISOString().split('T')[0];
+                    if (sub.verdict === 'OK') {
+                        calendar[date] = (calendar[date] || 0) + 1;
+                        // Unique problem key: contestId + index (e.g., 1234A)
+                        uniqueSolved.add(`${sub.problem.contestId}${sub.problem.index}`);
+                    }
+                });
+                solved = uniqueSolved.size;
+            }
+        } catch (e) { console.error("CF Status fetch error", e.message); }
+
         return {
             platform: 'Codeforces',
             handle,
             rating: user.rating,
             rank: user.rank,
             maxRating: user.maxRating,
+            solved,
             history,
+            calendar,
             success: true
         };
     } catch (err) {
@@ -105,28 +157,61 @@ const fetchCodeforces = async (handle) => {
     }
 };
 
+// --- GFG (GeeksforGeeks) ---
+const fetchGFG = async (handle) => {
+    console.log(`Fetching GFG for: ${handle}`);
+    try {
+        const response = await axios.get(`https://www.geeksforgeeks.org/user/${handle}/`, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
+        });
+        const $ = cheerio.load(response.data);
+        
+        // GFG stats are often in spans with specific classes
+        const solvedText = $('.scoreCard_head_left--score__39_Z0').first().text() || 
+                           $('.tabs_main_content .solve-count').first().text() || "0";
+        const solved = parseInt(solvedText.replace(/\D/g, '')) || 0;
+        
+        return {
+            platform: 'GFG',
+            handle,
+            solved,
+            calendar: {},
+            history: [],
+            success: true
+        };
+    } catch (err) {
+        console.error(`GFG fetch error for ${handle}:`, err.message);
+        return { platform: 'GFG', handle, error: "Failed to fetch", success: false };
+    }
+};
+
 // --- AtCoder ---
 const fetchAtCoder = async (handle) => {
     console.log(`Fetching AtCoder for: ${handle}`);
     try {
-        // Parallel calls: Profile scrape and JSON history
-        // Note: AtCoder history JSON is accessible publicly
         const [profileRes, historyRes] = await Promise.all([
             axios.get(`https://atcoder.jp/users/${handle}`, { headers: { 'User-Agent': 'Mozilla/5.0' } }),
-            axios.get(`https://atcoder.jp/users/${handle}/history/json`, { headers: { 'User-Agent': 'Mozilla/5.0' } }) // Valid JSON endpoint
+            axios.get(`https://atcoder.jp/users/${handle}/history/json`, { headers: { 'User-Agent': 'Mozilla/5.0' } })
         ]);
 
         const $ = cheerio.load(profileRes.data);
         let rating = 0;
+        let solved = 0;
+        
         $('th').each((i, el) => {
-            if ($(el).text().trim() === 'Rating') {
+            const text = $(el).text().trim();
+            if (text === 'Rating') {
                 const val = $(el).next('td').text().trim();
                 const match = val.match(/^(\d+)/);
                 if (match) rating = parseInt(match[1]);
             }
         });
 
-        if (!rating && rating !== 0) throw new Error("Rating not found");
+        // Scrape solved count if possible (AtCoder doesn't show it directly on main profile always, 
+        // but often in "Accepted" under contest results or via a separate link. 
+        // For now, let's look for any 'Accepted' text)
+        const acceptedMatch = profileRes.data.match(/Accepted<\/th><td>(\d+)<\/td>/);
+        if (acceptedMatch) solved = parseInt(acceptedMatch[1]);
 
         const history = historyRes.data.map(x => ({
             rating: x.NewRating,
@@ -137,6 +222,7 @@ const fetchAtCoder = async (handle) => {
             platform: 'AtCoder',
             handle,
             rating,
+            solved,
             history,
             success: true
         };
@@ -151,26 +237,47 @@ const fetchCodeChef = async (handle) => {
     console.log(`Fetching CodeChef for: ${handle}`);
     try {
         const response = await axios.get(`https://www.codechef.com/users/${handle}`, {
-            headers: { 'User-Agent': 'Mozilla/5.0' }
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
         });
         const $ = cheerio.load(response.data);
-        const rating = $('.rating-number').text().replace(/\D/g, '');
+        const rating = $('.rating-number').first().text().replace(/\D/g, '');
         const stars = $('.rating-star').text().trim();
 
-        if (!rating) throw new Error("Rating not found");
+        // Extract History from Script Tag (CodeChef embeds it in a Highcharts config)
+        let history = [];
+        const scripts = $('script');
+        scripts.each((i, s) => {
+            const content = $(s).html();
+            if (content && content.includes('all_rating')) {
+                // Regex to find the rating history array
+                const match = content.match(/all_rating\s*=\s*(\[.*?\]);/);
+                if (match) {
+                    try {
+                        const rawHistory = JSON.parse(match[1]);
+                        history = rawHistory.map(item => ({
+                            rating: parseInt(item.rating),
+                            date: `${item.year}-${item.month.padStart(2, '0')}-${item.day.padStart(2, '0')}`
+                        }));
+                    } catch (e) {
+                        console.error("CodeChef history parse error", e.message);
+                    }
+                }
+            }
+        });
 
-        // CodeChef history is hard to scrape cleanly without huge regex or chart parsing. Skipping history.
         return {
             platform: 'CodeChef',
             handle,
-            rating: parseInt(rating),
-            stars,
-            history: [], // No history for now
-            success: true
+            rating: parseInt(rating) || 0,
+            stars: stars || '0',
+            solved: 0, // CodeChef solved count is in another complex section
+            history: history,
+            success: !!rating
         };
     } catch (err) {
+        console.error(`CodeChef fetch error for ${handle}:`, err.message);
         return { platform: 'CodeChef', handle, error: "Failed to fetch", success: false };
     }
 };
 
-module.exports = { fetchLeetCode, fetchCodeforces, fetchCodeChef, fetchAtCoder };
+module.exports = { fetchLeetCode, fetchCodeforces, fetchCodeChef, fetchAtCoder, fetchGFG };

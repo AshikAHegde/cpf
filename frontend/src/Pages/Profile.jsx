@@ -23,7 +23,8 @@ const Profile = () => {
         leetcode: '',
         codeforces: '',
         codechef: '',
-        atcoder: ''
+        atcoder: '',
+        gfg: ''
     });
 
     // NOTE: Missing state variables restored here
@@ -60,7 +61,8 @@ const Profile = () => {
                     leetcode: getHandle('LeetCode'),
                     codeforces: getHandle('Codeforces'),
                     codechef: getHandle('CodeChef'),
-                    atcoder: getHandle('AtCoder')
+                    atcoder: getHandle('AtCoder'),
+                    gfg: getHandle('GFG')
                 }));
                 if (data.channels) setChannels(prev => ({ ...prev, ...data.channels }));
                 if (data.reminders) setReminders(prev => ({ ...prev, ...data.reminders }));
@@ -84,12 +86,12 @@ const Profile = () => {
 
         console.log("Submitting Auth:", authMode, formData);
 
-        // Construct platformHandles array
         const platformHandles = [
             { platform: 'LeetCode', handle: formData.leetcode || '' },
             { platform: 'Codeforces', handle: formData.codeforces || '' },
             { platform: 'CodeChef', handle: formData.codechef || '' },
-            { platform: 'AtCoder', handle: formData.atcoder || '' }
+            { platform: 'AtCoder', handle: formData.atcoder || '' },
+            { platform: 'GFG', handle: formData.gfg || '' }
         ];
 
         try {
@@ -131,12 +133,12 @@ const Profile = () => {
             const token = localStorage.getItem('token');
             const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
-            // Construct platformHandles array
             const platformHandles = [
                 { platform: 'LeetCode', handle: formData.leetcode || '' },
                 { platform: 'Codeforces', handle: formData.codeforces || '' },
                 { platform: 'CodeChef', handle: formData.codechef || '' },
-                { platform: 'AtCoder', handle: formData.atcoder || '' }
+                { platform: 'AtCoder', handle: formData.atcoder || '' },
+                { platform: 'GFG', handle: formData.gfg || '' }
             ];
 
             await axios.put(`${API_URL}/users/preferences`, {
@@ -160,7 +162,7 @@ const Profile = () => {
             localStorage.removeItem('token'); // Clear token
             await axios.post(`${API_URL}/users/logout`);
             setIsLoaded(false);
-            setFormData({ name: '', email: '', password: '', leetcode: '', codeforces: '', codechef: '', atcoder: '' });
+            setFormData({ name: '', email: '', password: '', leetcode: '', codeforces: '', codechef: '', atcoder: '', gfg: '' });
             setChannels({ email: true }); // Reset defaults
             setReminders({ oneDay: false, twoDays: false }); // Reset defaults
             setAuthMode('login');

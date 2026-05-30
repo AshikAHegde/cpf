@@ -23,7 +23,8 @@ const UserSchema = new mongoose.Schema({
             { platform: 'LeetCode', handle: '' },
             { platform: 'Codeforces', handle: '' },
             { platform: 'CodeChef', handle: '' },
-            { platform: 'AtCoder', handle: '' }
+            { platform: 'AtCoder', handle: '' },
+            { platform: 'GFG', handle: '' }
         ]
     },
     notificationHistory: [

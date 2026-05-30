@@ -100,6 +100,16 @@ const AuthForm = ({ authMode, setAuthMode, formData, setFormData, handleAuthSubm
                                 className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                             />
                         </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">GFG Handle</label>
+                            <input
+                                type="text"
+                                placeholder="gfg_user"
+                                value={formData.gfg || ''}
+                                onChange={e => setFormData({ ...formData, gfg: e.target.value })}
+                                className="w-full bg-[#0a0a0f] border border-gray-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                            />
+                        </div>
                     </>
                 )}
 

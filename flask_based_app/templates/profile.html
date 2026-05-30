@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile — CPF{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <div class="profile-header animate-in">
+        <div class="profile-identity">
+            <div class="profile-avatar">
+                {{ (user.name or 'U')[0] | upper }}
+            </div>
+            <div>
+                <p class="profile-kicker">Account profile</p>
+                <h1>{{ user.name or 'Your Name' }}</h1>
+                <p class="profile-email">{{ user.email }}</p>
+            </div>
+        </div>
+        <div class="profile-summary">
+            <div>
+                <span>{{ platform_handles | length }}</span>
+                <small>Platforms</small>
+            </div>
+            <div>
+                <span>{{ platform_stats | length }}</span>
+                <small>Synced</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-layout">
+        <form method="POST" class="profile-panel profile-form animate-in delay-1">
+            <div class="profile-panel-header">
+                <div>
+                    <h2>Profile</h2>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input class="form-control form-control-boxed" type="text" id="name" name="name" value="{{ user.name or '' }}" placeholder="e.g., Ada Lovelace">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input class="form-control form-control-boxed" type="email" id="email" name="email" value="{{ user.email or '' }}" required>
+                </div>
+            </div>
+
+            <div class="section-divider">
+                <h3>Platform handles</h3>
+            </div>
+
+            <div class="handles-grid">
+                {% set platforms = ['LeetCode', 'Codeforces', 'CodeChef', 'AtCoder', 'GFG'] %}
+                {% for p in platforms %}
+                <div class="form-group platform-field">
+                    <label for="handle-{{ p }}">{{ p }}</label>
+                    <input class="form-control form-control-boxed" type="text" id="handle-{{ p }}" name="handle-{{ p }}" value="{{ platform_handles.get(p, '') }}" placeholder="Your {{ p }} username">
+                </div>
+                {% endfor %}
+            </div>
+        </form>
+
+        <aside class="profile-sidebar">
+            <div class="profile-panel animate-in delay-2">
+                <div class="profile-panel-header compact">
+                    <div>
+                        <h2>Stats</h2>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    {% for platform, stats in platform_stats.items() %}
+                    <div class="stat-card" style="--platform-color: {{ stats.color or '#8b5cf6' }}">
+                        <div class="stat-card-header">
+                            <span>{{ platform.upper() }}</span>
+                            <span>{{ stats.username }}</span>
+                        </div>
+                        {% if stats.error %}
+                        <div class="stat-card-error">
+                            <p>{{ stats.error }}</p>
+                        </div>
+                        {% else %}
+                        <div class="stat-card-body">
+                            <div class="stat-card-main">{{ stats.rating }}</div>
+                            <div class="stat-card-label">Rating</div>
+                        </div>
+                        <div class="stat-card-footer">
+                            {{ stats.problems_solved }} problems solved
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="profile-empty">Add platform handles to see your stats here.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="chart-container profile-panel animate-in delay-3">
+                <div class="profile-panel-header compact">
+                    <div>
+                        <h2>Contests</h2>
+                    </div>
+                </div>
+                <canvas id="contestChart"></canvas>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var ctx = document.getElementById('contestChart').getContext('2d');
+    var chartData = JSON.parse('{{ chart_data | safe }}');
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#a0a0b0',
+                        font: {
+                            family: "'DM Sans', sans-serif",
+                            size: 14
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

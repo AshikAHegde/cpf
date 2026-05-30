@@ -17,25 +17,27 @@ export default function Navbar() {
   return (
     <Disclosure as="nav" className="sticky top-0 bg-[#0a0a0f]/70 backdrop-blur-xl border-b border-white/5 z-50 transition-all duration-300">
       <div className="mx-auto max-w-[1600px] px-4 md:px-8">
-        <div className="relative flex h-24 items-center justify-between">
+        <div className="relative flex h-16 items-center justify-between">
           <div className="flex items-center sm:hidden mr-2">
             {/* Mobile menu button*/}
-            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-none">
               <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
-              <Bars3Icon aria-hidden="true" className="block size-8 group-data-open:hidden" />
-              <XMarkIcon aria-hidden="true" className="hidden size-8 group-data-open:block" />
+              <Bars3Icon aria-hidden="true" className="block size-6 group-data-open:hidden" />
+              <XMarkIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
             </DisclosureButton>
           </div>
 
           {/* Left: Logo */}
           <div className="flex shrink-0 items-center gap-2 sm:items-stretch sm:justify-start">
-            <span className="text-white font-extrabold text-3xl tracking-tight">ContestPlatform</span>
+            <Link to="/" className="text-white font-bold text-xl tracking-tighter hover:opacity-80 transition-opacity">
+              ContestPlatform
+            </Link>
           </div>
 
           {/* Center: Navigation Links (Desktop) */}
           <div className="hidden sm:block absolute left-1/2 transform -translate-x-1/2">
-            <div className="flex space-x-8">
+            <div className="flex space-x-1">
               {navigation.map((item) => {
                 const isCurrent = location.pathname === item.href;
                 return (
@@ -45,9 +47,9 @@ export default function Navbar() {
                     aria-current={isCurrent ? 'page' : undefined}
                     className={classNames(
                       isCurrent
-                        ? 'text-white font-bold'
-                        : 'text-gray-400 hover:text-white',
-                      'px-3 py-2 text-lg transition-colors',
+                        ? 'text-white bg-white/5'
+                        : 'text-gray-500 hover:text-white hover:bg-white/[0.02]',
+                      'px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-200',
                     )}
                   >
                     {item.name}
@@ -61,11 +63,11 @@ export default function Navbar() {
           <div className="flex items-center gap-2 sm:ml-6">
             <Link
               to="/profile"
-              className="relative rounded-full p-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+              className="relative rounded-full p-2 text-gray-500 hover:text-white transition-colors"
             >
               <span className="absolute -inset-1.5" />
               <span className="sr-only">My Profile</span>
-              <Cog6ToothIcon aria-hidden="true" className="size-8" />
+              <Cog6ToothIcon aria-hidden="true" className="size-5" />
             </Link>
 
 

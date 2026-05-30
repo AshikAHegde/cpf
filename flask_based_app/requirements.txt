@@ -1,0 +1,8 @@
+flask
+python-dotenv
+bcrypt
+requests
+beautifulsoup4
+apscheduler
+pymysql
+cryptography

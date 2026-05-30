@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — CPF{% endblock %}
+
+{% block content %}
+<!-- Header with greeting -->
+<div class="dash-header animate-in">
+    <h1 class="dash-greeting">Hey, <span>{{ user.name or 'coder' }}</span> 👋</h1>
+    <p class="dash-date">
+        <script>
+            document.write(new Date().toLocaleDateString(undefined, {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            }));
+        </script>
+    </p>
+</div>
+
+<!-- Quick stats strip -->
+<div class="stats-strip animate-in delay-1">
+    <div class="stat-pill">
+        <span class="stat-num">{{ contests | length }}</span> contests tracked
+    </div>
+    <div class="stat-pill">
+        <span class="stat-num">{{ platforms | length }}</span> platforms
+    </div>
+</div>
+
+<!-- Filter chips -->
+<div class="filter-bar animate-in delay-2">
+    <div class="filter-group">
+        <span class="filter-label">Status</span>
+        <button class="filter-chip active" data-filter-group="status" data-filter="all">All</button>
+        <button class="filter-chip" data-filter-group="status" data-filter="upcoming">Upcoming</button>
+        <button class="filter-chip" data-filter-group="status" data-filter="live">Live</button>
+        <button class="filter-chip" data-filter-group="status" data-filter="done">Done</button>
+    </div>
+    {% if platforms | length > 1 %}
+    <div class="filter-group">
+        <span class="filter-label">Platform</span>
+        <button class="filter-chip active" data-filter-group="platform" data-filter="all">All</button>
+        {% for p in platforms %}
+        <button class="filter-chip" data-filter-group="platform" data-filter="{{ p }}">{{ p }}</button>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Contest grid -->
+<div class="contests-grid animate-in delay-3">
+    {% for contest in contests %}
+    <div class="card contest-card" data-platform="{{ contest.platform }}" data-status="{{ contest.status }}">
+        <div>
+            <div class="contest-meta">
+                <span class="contest-platform">{{ contest.platform }} · {{ contest.type }}</span>
+                <span class="contest-badge {{ contest.status }}">{{ contest.status }}</span>
+            </div>
+            <div class="contest-title">{{ contest.title }}</div>
+            <div class="contest-details">
+                <span class="contest-detail-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="time-{{ loop.index }}">
+                        <script>
+                            (function(){
+                                var start = new Date("{{ contest.start }}");
+                                var now = new Date();
+                                var diff = start - now;
+                                var el = document.getElementById('time-{{ loop.index }}');
+                                if ("{{ contest.status }}" === "live") {
+                                    el.textContent = 'Live now';
+                                } else if ("{{ contest.status }}" === "done") {
+                                    el.textContent = start.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+                                } else {
+                                    var days = Math.floor(diff / 86400000);
+                                    var hours = Math.floor((diff % 86400000) / 3600000);
+                                    if (days > 1) el.textContent = 'in ' + days + ' days';
+                                    else if (days === 1) el.textContent = 'tomorrow';
+                                    else if (hours > 0) el.textContent = 'in ' + hours + 'h';
+                                    else el.textContent = 'starting soon';
+                                }
+                            })();
+                        </script>
+                    </span>
+                </span>
+                <span class="contest-detail-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <script>
+                        document.write(new Date("{{ contest.start }}").toLocaleDateString(undefined, {
+                            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                        }));
+                    </script>
+                </span>
+            </div>
+        </div>
+        <a href="{{ contest.url }}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="width: 100%;">
+            Open Contest →
+        </a>
+    </div>
+    {% else %}
+    <div class="card empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h3>No contests on the radar</h3>
+        <p>Either everything's quiet or the APIs are napping. Check back later.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Combined filter logic
+    var filters = {
+        platform: 'all',
+        status: 'all'
+    };
+
+    document.querySelectorAll('.filter-chip').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+            var group = this.dataset.filterGroup;
+            var filter = this.dataset.filter;
+
+            // Update active state for this group
+            document.querySelectorAll('.filter-chip[data-filter-group="' + group + '"]').forEach(function(c) {
+                c.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            // Store current filter
+            filters[group] = filter;
+
+            // Apply filters
+            document.querySelectorAll('.contest-card').forEach(function(card) {
+                var platformMatch = (filters.platform === 'all' || card.dataset.platform === filters.platform);
+                var statusMatch = (filters.status === 'all' || card.dataset.status === filters.status);
+
+                if (platformMatch && statusMatch) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
